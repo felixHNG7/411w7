@@ -81,8 +81,7 @@ function App() {
 
     if (!loading) {
       d3.selectAll("svg").remove();
-      scatter_plot()
-      scatter_plot()
+      scatter_plot(searchClasspath)
     }
   }, [loading]);
 
@@ -94,65 +93,69 @@ function App() {
     console.log(ViewRepositoryClientImpl)
     console.log(ViewRepositoryImpl)
     console.log(WebJARs)
-    d3.selectAll("svg").remove();
+    //d3.selectAll("svg").remove();
   }
 
 
-  const scatter_plot = () => {
-    const margin = { top: 20, right: 20, bottom: 80, left: 60 },
-      width = 300 - margin.left - margin.right,
-      height = 300 - margin.top - margin.bottom;
+  const scatter_plot = (data) => {
+    for (let i = 0; i < Object.keys(data).length; i++) {
+      const margin = { top: 20, right: 50, bottom: 80, left: 50 },
+        width = 350 - margin.left - margin.right,
+        height = 350 - margin.top - margin.bottom;
+
+      const x = d3.scalePoint()
+        .range([0, width])
+        .padding(0.5);
+
+      const y = d3.scaleLinear()
+        .range([height, 0]);
+
+      var svg = d3.select(".graph").append("svg")
+        .attr("id", "svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
 
 
+      //Get the max y value and doubles it
+      const maxY = 2 * Math.max.apply(Math, data.map(function (o) { return o[Object.keys(o)[i]]; }))
 
-    const x = d3.scalePoint()
-      .range([0, width])
-      .padding(0.5);
+      x.domain(data.map(function (d) { return d.startDate; }));
+      y.domain([0, maxY])
 
-    const y = d3.scaleLinear()
-      .range([height, 0]);
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll("text")
+        .attr("dy", "1.5em")
+        .attr("transform", "rotate(45)")
+        .style("text-anchor", "start");
 
-    var svg = d3.select(".graph").append("svg")
-      .attr("id", "svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
+      svg.append("g")
+        .call(d3.axisLeft(y).ticks(5));
 
-    x.domain(loadClass.map(function (d) { return d.startDate; }));
-    y.domain([0, 2])
+      svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#69b3a2")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+          .x(function (d) { return x(d.startDate) })
+          .y(function (d) { return y(d[Object.keys(d)[i]]) })
+        )
 
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x).tickSize(0))
-      .selectAll("text")
-      .attr("dy", "1.5em")
-      .attr("transform", "rotate(45)")
-      .style("text-anchor", "start"); 
-
-    svg.append("g")
-      .call(d3.axisLeft(y).ticks(5));
-
-    svg.append("path")
-      .datum(loadClass)
-      .attr("fill", "none")
-      .attr("stroke", "#69b3a2")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .x(function (d) { return x(d.startDate) })
-        .y(function (d) { return y(d.Avg) })
-      )
-
-    svg.append('g')
-      .selectAll("dot")
-      .data(loadClass)
-      .enter()
-      .append("circle")
-      .attr("cx", function (d) { return x(d.startDate); })
-      .attr("cy", function (d) { return y(d.Avg); })
-      .attr("fill", "#69b3a2")
-      .attr("r", 3)
+      svg.append('g')
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d) { return x(d.startDate); })
+        .attr("cy", function (d) { return y(d[Object.keys(d)[i]]); })
+        .attr("fill", "#69b3a2")
+        .attr("r", 3)
+    }
   }
 
   return (
