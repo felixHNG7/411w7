@@ -81,7 +81,9 @@ function App() {
 
     if (!loading) {
       d3.selectAll("svg").remove();
-      scatter_plot(searchClasspath)
+      scatter_plot(loadClass)
+      bar_chart(loadClass)
+
     }
   }, [loading]);
 
@@ -93,12 +95,14 @@ function App() {
     console.log(ViewRepositoryClientImpl)
     console.log(ViewRepositoryImpl)
     console.log(WebJARs)
+
+
     //d3.selectAll("svg").remove();
   }
 
 
   const scatter_plot = (data) => {
-    for (let i = 0; i < Object.keys(data).length; i++) {
+    for (let i = 0; i < Object.keys(data[0]).length - 2; i++) {
       const margin = { top: 20, right: 50, bottom: 80, left: 50 },
         width = 350 - margin.left - margin.right,
         height = 350 - margin.top - margin.bottom;
@@ -124,6 +128,14 @@ function App() {
 
       x.domain(data.map(function (d) { return d.startDate; }));
       y.domain([0, maxY])
+
+      //title
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", 0)
+        .style("text-anchor", "middle")
+        .attr("fill", "#FFFFFF")
+        .text(Object.keys(data[0])[i]);
 
       svg.append("g")
         .attr("transform", "translate(0," + height + ")")
@@ -155,20 +167,81 @@ function App() {
         .attr("cy", function (d) { return y(d[Object.keys(d)[i]]); })
         .attr("fill", "#69b3a2")
         .attr("r", 3)
+
+
     }
+  }
+
+  const bar_chart = (data) => {
+    const margin = { top: 20, right: 50, bottom: 80, left: 50 },
+      width = 350 - margin.left - margin.right,
+      height = 350 - margin.top - margin.bottom;
+
+    const x = d3.scaleBand()
+      .range([0, width])
+      .padding(0.5);
+
+    const y = d3.scaleLinear()
+      .range([height, 0]);
+
+    const svg = d3.select(".graph").append("svg")
+      .attr("id", "svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      //title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", 0)
+      .style("text-anchor", "middle")
+      .attr("fill", "#FFFFFF")
+      .text("Count");
+
+
+    //Get the max count y value 
+    const maxY = 1.5 * Math.max.apply(Math, data.map(function (o) { return o.Count; }))
+
+    x.domain(data.map(function (d) { return d.startDate; }));
+    y.domain([0, maxY])
+
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll("text")
+        .attr("dy", "1.5em")
+        .attr("transform", "rotate(45)")
+        .style("text-anchor", "start");
+
+    svg.append("g")
+      .call(d3.axisLeft(y).ticks(5));
+
+    svg.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", d => x(d.startDate))
+      .attr("width", 50)
+      .attr("y", d => y(d.Count))
+      .attr("height", d => height - y(d.Count))
+      .attr("fill", "#69b3a2");
   }
 
   return (
     <div className="App">
-      <button onClick={getValues}>
-        Print
+      <div className="container">
+        <button onClick={getValues}>
+          Print
         </button>
-      <h2>Graph</h2>
-      {loading ?
-        <div>Loading ...</div>
-        : <div className="graph">
-        </div>}
+        <h2>Graph</h2>
+        {loading ?
+          <div>Loading ...</div>
+          : <div className="graph">
+          </div>}
+      </div>
     </div>
+
   );
 }
 
