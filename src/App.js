@@ -78,15 +78,48 @@ function App() {
   }, []);
 
   useEffect(() => {
-
     if (!loading) {
-      d3.selectAll("svg").remove();
+      d3.selectAll("svg").remove()
       scatter_plot(loadClass)
       bar_chart(loadClass)
-
     }
   }, [loading]);
 
+  function logSelect(e) {
+    console.log(e.target.value)
+    d3.selectAll("svg").remove()
+    switch (e.target.value) {
+      case '1':
+        console.log("eaz")
+        scatter_plot(loadClass)
+        bar_chart(loadClass)
+        break;
+      case '2':
+        scatter_plot(searchClasspath)
+        bar_chart(searchClasspath)
+        break;
+      case '3':
+        scatter_plot(searchFiles)
+        bar_chart(searchFiles)
+        break;
+      case '4':
+        scatter_plot(replaceExtendedMetaClasses)
+        bar_chart(replaceExtendedMetaClasses)
+        break;
+      case '5':
+        scatter_plot(ViewRepositoryClientImpl)
+        bar_chart(ViewRepositoryClientImpl)
+        break;
+      case '6':
+        scatter_plot(ViewRepositoryImpl)
+        bar_chart(ViewRepositoryImpl)
+        break;
+      case '7':
+        scatter_plot(WebJARs)
+        bar_chart(WebJARs)
+        break;
+    }
+  }
   function getValues() {
     console.log(loadClass)
     console.log(searchClasspath)
@@ -104,7 +137,7 @@ function App() {
   const scatter_plot = (data) => {
     for (let i = 0; i < Object.keys(data[0]).length - 2; i++) {
       const margin = { top: 20, right: 50, bottom: 80, left: 50 },
-        width = 350 - margin.left - margin.right,
+        width = 400 - margin.left - margin.right,
         height = 350 - margin.top - margin.bottom;
 
       const x = d3.scalePoint()
@@ -174,7 +207,7 @@ function App() {
 
   const bar_chart = (data) => {
     const margin = { top: 20, right: 50, bottom: 80, left: 50 },
-      width = 350 - margin.left - margin.right,
+      width = 400 - margin.left - margin.right,
       height = 350 - margin.top - margin.bottom;
 
     const x = d3.scaleBand()
@@ -191,7 +224,7 @@ function App() {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      //title
+    //title
     svg.append("text")
       .attr("x", width / 2)
       .attr("y", 0)
@@ -207,12 +240,13 @@ function App() {
     y.domain([0, maxY])
 
     svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).tickSize(0))
-        .selectAll("text")
-        .attr("dy", "1.5em")
-        .attr("transform", "rotate(45)")
-        .style("text-anchor", "start");
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x).tickSize(0))
+      .selectAll("text")
+      .attr("dy", ".5em")
+      .attr("dx", "0.8em")
+      .attr("transform", "rotate(45)")
+      .style("text-anchor", "start");
 
     svg.append("g")
       .call(d3.axisLeft(y).ticks(5));
@@ -231,13 +265,26 @@ function App() {
   return (
     <div className="App">
       <div className="container">
-        <button onClick={getValues}>
+        {/* <button onClick={getValues}>
           Print
-        </button>
-        <h2>Graph</h2>
+        </button> */}
+        <h2>Logs statistics</h2>
         {loading ?
           <div>Loading ...</div>
-          : <div className="graph">
+          :
+          <div>
+            <select onChange={logSelect}>
+              <option value='1'>loadClass</option>
+              <option value='2'>searchClasspath</option>
+              <option value='3'>searchFiles</option>
+              <option value='4'>replaceExtendedMetaClasses</option>
+              <option value='5'>ViewRepositoryClientImpl</option>
+              <option value='6'>ViewRepositoryImpl</option>
+              <option value='7'>WebJARs</option>
+            </select>
+            <div className="graph">
+
+            </div>
           </div>}
       </div>
     </div>
