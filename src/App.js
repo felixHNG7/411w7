@@ -28,7 +28,7 @@ function App() {
   async function dataParse() {
     try {
       setLoading(true)
-      const logs = await datas().then(function (log) {
+      await datas().then(function (log) {
         for (let i = 0; i < log.length; i++) {
           if (log[i] !== undefined) {
             if (log[i]["loadClass"] !== undefined) {
@@ -75,6 +75,7 @@ function App() {
   useEffect(() => {
     if (loadClass.length === 0)
       dataParse()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -83,14 +84,13 @@ function App() {
       scatter_plot(loadClass)
       bar_chart(loadClass)
     }
-  }, [loading]);
+  }, [loading, loadClass]);
 
   function logSelect(e) {
-    console.log(e.target.value)
     d3.selectAll("svg").remove()
+
     switch (e.target.value) {
       case '1':
-        console.log("eaz")
         scatter_plot(loadClass)
         bar_chart(loadClass)
         break;
@@ -118,20 +118,21 @@ function App() {
         scatter_plot(WebJARs)
         bar_chart(WebJARs)
         break;
+      default:
+        scatter_plot(loadClass)
+        bar_chart(loadClass)
     }
   }
-  function getValues() {
-    console.log(loadClass)
-    console.log(searchClasspath)
-    console.log(searchFiles)
-    console.log(replaceExtendedMetaClasses)
-    console.log(ViewRepositoryClientImpl)
-    console.log(ViewRepositoryImpl)
-    console.log(WebJARs)
-
-
-    //d3.selectAll("svg").remove();
-  }
+  // function getValues() {
+  //   console.log(loadClass)
+  //   console.log(searchClasspath)
+  //   console.log(searchFiles)
+  //   console.log(replaceExtendedMetaClasses)
+  //   console.log(ViewRepositoryClientImpl)
+  //   console.log(ViewRepositoryImpl)
+  //   console.log(WebJARs)
+  //   //d3.selectAll("svg").remove();
+  // }
 
 
   const scatter_plot = (data) => {
@@ -274,7 +275,7 @@ function App() {
           :
           <div>
             <select onChange={logSelect}>
-              <option value='1'>loadClass</option>
+              <option value='1' >loadClass</option>
               <option value='2'>searchClasspath</option>
               <option value='3'>searchFiles</option>
               <option value='4'>replaceExtendedMetaClasses</option>
